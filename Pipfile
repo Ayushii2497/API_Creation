@@ -12,6 +12,7 @@ textblob = "*"
 nltk = "*"
 redis = "*"
 analytix = "1.1.1"
+flask = "*"
 
 [dev-packages]
 
