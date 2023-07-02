@@ -2,27 +2,20 @@ import redis
 from googleapiclient.discovery import build
 import re
 from datetime import datetime, timedelta
+dict={"status":"ABC","timestamp":"","channel_name":"","channel_user_name":"","subscriber_count":"","views":"","join_date":"","Parsed_email_ids":"","latest_videos":""}
+redisClient = redis.Redis(host='localhost', port=6379, db=0)
+redisClient.mset(dict)
 
-# redisClient = redis.Redis(host='localhost', port=6379, db=0)
-# redisClient.set("status","ABC")
-# redisClient.set("timestamp","")
-# redisClient.set("channel_name","")
-# redisClient.set("channel_user_name","")
-# redisClient.set("subscriber_count","")
-# redisClient.set("views","")
-# redisClient.set("join_date","")
-# redisClient.set("Parsed_email_ids","")
-# redisClient.set("latest_videos","")
 
-# print(redisClient.get("status"))
+print(redisClient.get("status"))
 # youtube = build('youtube', 'v3', credentials=creds)
-# youtube1 = build('youtube', 'v3',developerKey='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk')
-# search_channel_name = 'atgoogletalks'
+youtube1 = build('youtube', 'v3',developerKey='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk')
+search_channel_name = 'atgoogletalks'
 
-# channels_response = youtube1.channels().list(
-#         forUsername=search_channel_name,
-#         part="id, snippet, statistics, contentDetails, topicDetails"
-# ).execute()
+channels_response = youtube1.channels().list(
+        forUsername=search_channel_name,
+        part="id, snippet, statistics, contentDetails, topicDetails"
+).execute()
 
 
 # def video_info(channels_response):
@@ -62,10 +55,11 @@ from datetime import datetime, timedelta
 #     """)
 
 
-# channel=channels_response.get("items")[0]
-# subscriber_count = channel['statistics']['subscriberCount']
-# joining_date = channel['snippet']['publishedAt']
-# total_views = channel['statistics']['viewCount']
+channel=channels_response.get("items")[0]
+subscriber_count = channel['statistics']['subscriberCount']
+joining_date = channel['snippet']['publishedAt']
+total_views = channel['statistics']['viewCount']
+
 # print(subscriber_count,joining_date,total_views)
 # CHANNEL_ID='UCfjTOrCPnAblTngWAzpnlMA'
 # # CHANNEL_ID=search_channel_name
@@ -85,11 +79,11 @@ from analytix.youtube import YouTubeAnalytics, YouTubeService
 
 # from analytix import youtube
 
-service = YouTubeService("./secrets.json")  # Load from secrets file
-service.authorise()
-analytics = YouTubeAnalytics(service)
-report = analytics.retrieve(dimensions=("day",))
-report.to_csv("./analytics-28d.csv")
+# service = YouTubeService("./secrets.json")  # Load from secrets file
+# service.authorise()
+# analytics = YouTubeAnalytics(service)
+# report = analytics.retrieve(dimensions=("day",))
+# report.to_csv("./analytics-28d.csv")
 # analytics_request = youtube.reports().query(
 #     ids="channel==" + "UCbmNph6atAoGfqLoCL_duAg",
 #     startDate=(datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d"),
