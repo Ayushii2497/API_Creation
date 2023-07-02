@@ -1,5 +1,7 @@
 from googleapiclient.discovery import build
 import re
+import os
+import configparser
 from datetime import datetime,timedelta
 from googleapiclient.discovery import build
 from google.auth.exceptions import GoogleAuthError
@@ -8,14 +10,21 @@ from datetime import datetime, timedelta
 import google.auth.transport.requests
 from nltk.sentiment import SentimentIntensityAnalyzer
 
+# Read the configuration file
+config = configparser.ConfigParser()
+print(os.path.join(os.getcwd(),"data_io",'config.ini'))
+config.read(os.path.join(os.getcwd(),"data_io",'config.ini'))
+
+youtube_api_key = config.get('creds', 'youtube_api_key')
+
 class Youtube_API:
     def __init__(self):
         self.yt = build('youtube', 'v3', 
-                        developerKey='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk')
+                        developerKey=youtube_api_key)
         self.comments_response = ""
         try:
             credentials = service_account.Credentials.from_service_account_file(
-                './secrets_1.json',
+                os.path.join(os.getcwd(),"misc",'secrets_1.json'),
                 scopes=['https://www.googleapis.com/auth/youtube.readonly']
             )
             credentials.refresh(google.auth.transport.requests.Request())

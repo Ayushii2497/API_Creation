@@ -13,6 +13,8 @@ nltk = "*"
 redis = "*"
 analytix = "1.1.1"
 flask = "*"
+celery = "*"
+click_didyoumean = "0.3.0"
 
 [dev-packages]
 

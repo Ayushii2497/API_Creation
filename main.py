@@ -1,4 +1,7 @@
 from data_io.yt_api_io import *
+from data_io.redis_io import *
+from data_io.celery_task_io import perform_youtube_analysis
+from data_io.celery_task_io import r_client
 import nltk
 from flask import Flask, request
 from flask import Response
@@ -10,33 +13,23 @@ nltk.download('vader_lexicon')
 
 @app.route("/getChannelDetails", methods=['GET','POST'])
 def getChannelDetails():
-    req = request.json
-    channel_link=req["Link"]
+    channel_name = request.args.get('channel')
     
-    # Create an instance of th.e Youtube_API class
-    yt_obj = Youtube_API()
+    resp_info = r_client.get_info(channel_name)
+    if resp_info:
+        response = jsonify(resp_info)
+        response.status_code = 200
+        return resp_info
+    else:
 
-    # # Retrieve and print the channel data for "atgoogletalks"
-    channel_data = yt_obj.channel_respose("atgoogletalks")
-    print(channel_data)
-    
-    # Retrieve audience response (uncommented line)
-    # audience_resp = yt_obj.audience_response()
+        # Perform data extraction in the background
+        task = perform_youtube_analysis(channel_name)
 
-    # Make a request for demographics data (uncommented line)
-    # yt_obj.demographics_request()
+        response = jsonify({"body":"Processing data"})
+        response.status_code = 200
 
-    # Make a request for comments data
-    yt_obj.comments_request()
-
-    # Perform sentiment analysis
-    senti_score = yt_obj.sentiment_analyse()
-    print(f"The Sentiment score obtained - {senti_score}")
-    
-    response = jsonify(channel_data)
-    response.status_code = 200
-    return response
-    # return channel_data
+        return response
+        # return channel_data
     
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=True)
