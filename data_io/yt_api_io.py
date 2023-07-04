@@ -1,5 +1,6 @@
 from googleapiclient.discovery import build
 import re
+import requests
 import os
 import configparser
 from datetime import datetime,timedelta
@@ -9,6 +10,7 @@ from google.oauth2 import service_account
 from datetime import datetime, timedelta
 import google.auth.transport.requests
 from nltk.sentiment import SentimentIntensityAnalyzer
+import json
 
 # Read the configuration file
 config = configparser.ConfigParser()
@@ -91,3 +93,22 @@ class Youtube_API:
 
         sentiment_score = sum(sentiments) / len(sentiments) if sentiments else 0
         return sentiment_score
+    
+    def top_videos_info(self,channel_name):
+        channels_response = self.yt.channels().list(
+        forUsername=channel_name,
+        part="id, snippet, statistics, contentDetails, topicDetails"
+        ).execute()
+        channel_id=channels_response['items'][0]['id']
+        url=f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={channel_id}&maxResults=10&order=date&type=video&key={youtube_api_key}"
+        json_url = requests.get(url)
+        data = json.loads(json_url.text)
+        for ele in data['items']:
+            vid_id=ele['id']['videoId']
+            video_response= self.yt.videos().list(part='snippet,statistics', id=vid_id).execute()
+            likes = video_response['items'][0]['statistics']['likeCount']
+            comment_count = video_response['items'][0]['statistics']['commentCount']
+            des = video_response['items'][0]['snippet']['description']
+            emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(des))
+        response={"Video ID":vid_id,"Likes":likes,"Comments Count":comment_count,"Email ID":emails}
+        return response

@@ -34,5 +34,9 @@ def perform_youtube_analysis(channel_name):
     # Perform sentiment analysis
     senti_score = yt_obj.sentiment_analyse()
     print(f"The Sentiment score obtained - {senti_score}")
+
+    #Get latest videos information
+    info=yt_obj.top_videos_info(channel_name)
+    print(info)
     
     r_client.insert_info(channel_name, channel_data)
