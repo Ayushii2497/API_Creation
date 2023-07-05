@@ -110,5 +110,15 @@ class Youtube_API:
             comment_count = video_response['items'][0]['statistics']['commentCount']
             des = video_response['items'][0]['snippet']['description']
             emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(des))
-        response={"Video ID":vid_id,"Likes":likes,"Comments Count":comment_count,"Email ID":emails}
+            #Extracting replies
+            video_replies=self.yt.commentThreads().list(part='snippet,replies',videoId=vid_id,maxResults=100).execute()
+            for rep in video_replies['items']:
+                replycount = rep['snippet']['totalReplyCount']
+                replies = []
+                if replycount>0:
+                   for reply in rep['replies']['comments']:
+                        reply = reply['snippet']['textDisplay']
+                        replies.append(reply)
+    
+        response={"Video ID":vid_id,"Likes":likes,"Comments Count":comment_count,"Email ID":emails,"Replies": replies}
         return response

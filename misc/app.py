@@ -1,78 +1,67 @@
-
-import nltk
-# nltk.data.path
-import ssl
-import nltk
-
-nltk.download('stopwords')
-
-from nltk.corpus import stopwords
-
-stopwords.words('english')
 # nltk.download('vader_lexicon')
 
 # import redis
-# from googleapiclient.discovery import build
-# import re
+from googleapiclient.discovery import build
+import re
 # from datetime import datetime, timedelta
 # dict={"status":"ABC","timestamp":"","channel_name":"","channel_user_name":"","subscriber_count":"","views":"","join_date":"","Parsed_email_ids":"","latest_videos":""}
 # redisClient = redis.Redis(host='localhost', port=6379, db=0)
 # redisClient.mset(dict)
-# import requests
-# import json
+import requests
+import json
 # # print(redisClient.get("status"))
 # # youtube = build('youtube', 'v3', credentials=creds)
-# youtube1 = build('youtube', 'v3',developerKey='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk')
+youtube1 = build('youtube', 'v3',developerKey='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk')
 # # search_channel_name = 'atgoogletalks'
-# search_channel_name="tseries"
+search_channel_name="tseries"
 
-# channels_response = youtube1.channels().list(
-#         forUsername=search_channel_name,
-#         part="id, snippet, statistics, contentDetails, topicDetails"
-# ).execute()
+channels_response = youtube1.channels().list(
+        forUsername=search_channel_name,
+        part="id, snippet, statistics, contentDetails, topicDetails"
+).execute()
 # # print(channels_response['items'][0]['id'])
 # # CHANNEL_ID='UCfjTOrCPnAblTngWAzpnlMA'
-# CHANNEL_ID='UCq-Fj5jknLsUf-MWSy4_brA'
-# dv_key='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk'
-# video_url= f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={CHANNEL_ID}&maxResults=10&order=date&type=video&key={dv_key}"
+CHANNEL_ID='UCq-Fj5jknLsUf-MWSy4_brA'
+dv_key='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk'
+video_url= f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={CHANNEL_ID}&maxResults=10&order=date&type=video&key={dv_key}"
 
-# json_url = requests.get(video_url)
-# data = json.loads(json_url.text)
-# # items=data.get("items")[0]
-# # retrieve youtube video results 
+json_url = requests.get(video_url)
+data = json.loads(json_url.text)
+# items=data.get("items")[0]
+# retrieve youtube video results 
 
 
-# for ele in data['items']:
-#         vid_id=ele['id']['videoId']
-#         video_request=youtube1.videos().list(
-#         part='snippet,statistics',
-#         id=vid_id
-#         )
-#         video_response = video_request.execute()
-#         # print(video_response)
-#         des = video_response['items'][0]['snippet']['description']
-#         emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(des))
-#         print(emails)
-#         # comment_count = video_response['items'][0]['statistics']['commentCount']
-#         # # print(video_response)
-#         # video_response_2=youtube1.commentThreads().list(
-#         # part='snippet,replies',
-#         # videoId=vid_id,maxResults=100
-#         # ).execute()
-#         # for i in video_response_2['items']:
-#         #         comment=i['snippet']['topLevelComment']['snippet']['textDisplay']
-#         #         emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(comment))
-#         #         # print (emails)
-#         #         replycount = i['snippet']['totalReplyCount']
-#         #         replies = []
-#         #         if replycount>0:
+for ele in data['items']:
+        vid_id=ele['id']['videoId']
+        video_request=youtube1.videos().list(
+        part='snippet,statistics',
+        id=vid_id
+        )
+        video_response = video_request.execute()
+        # print(video_response)
+        des = video_response['items'][0]['snippet']['description']
+        emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(des))
+        print(emails)
+        comment_count = video_response['items'][0]['statistics']['commentCount']
+        # print(video_response)
+        video_response_2=youtube1.commentThreads().list(
+        part='snippet,replies',
+        videoId=vid_id,maxResults=100
+        ).execute()
+        for i in video_response_2['items']:
+                comment=i['snippet']['topLevelComment']['snippet']['textDisplay']
+                emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(comment))
+                # print (emails)
+                replycount = i['snippet']['totalReplyCount']
+                replies = []
+                if replycount>0:
                    
-#         #                 for reply in i['replies']['comments']:
-#         #                         reply = reply['snippet']['textDisplay']
-#         #                         replies.append(reply)
+                        for reply in i['replies']['comments']:
+                                reply = reply['snippet']['textDisplay']
+                                replies.append(reply)
         
-#                 # print comment with list of reply
-#                 # print(comment, replies, end = '\n\n')
+                # print comment with list of reply
+                print(replies, end = '\n\n')
         
 #             # empty reply list
 #         #     replies = []

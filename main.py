@@ -8,7 +8,7 @@ from flask import Response
 from flask import jsonify
 app = Flask(__name__)
 
-# # # Download the 'vader_lexicon' package from NLTK for sentiment analysis
+# Download the 'vader_lexicon' package from NLTK for sentiment analysis
 nltk.download('vader_lexicon')
 
 @app.route("/getChannelDetails", methods=['GET','POST'])
