@@ -9,18 +9,21 @@ import re
 # redisClient.mset(dict)
 import requests
 import json
+from nltk.sentiment import SentimentIntensityAnalyzer
 # # print(redisClient.get("status"))
 # # youtube = build('youtube', 'v3', credentials=creds)
 youtube1 = build('youtube', 'v3',developerKey='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk')
 # # search_channel_name = 'atgoogletalks'
 search_channel_name="tseries"
 
-channels_response = youtube1.channels().list(
-        forUsername=search_channel_name,
-        part="id, snippet, statistics, contentDetails, topicDetails"
-).execute()
+# channels_response = youtube1.channels().list(
+#         forUsername=search_channel_name,
+#         part="id, snippet, statistics, contentDetails, topicDetails,"
+# ).execute()
+# channel_data=channels_response.get("items")[0]
+# print(channel_data)
 # # print(channels_response['items'][0]['id'])
-# # CHANNEL_ID='UCfjTOrCPnAblTngWAzpnlMA'
+# CHANNEL_ID='UCfjTOrCPnAblTngWAzpnlMA'
 CHANNEL_ID='UCq-Fj5jknLsUf-MWSy4_brA'
 dv_key='AIzaSyA8LYPKSMyLyIwwKDCeYsnrfDmz9dGmenk'
 video_url= f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={CHANNEL_ID}&maxResults=10&order=date&type=video&key={dv_key}"
@@ -39,17 +42,29 @@ for ele in data['items']:
         )
         video_response = video_request.execute()
         # print(video_response)
+        # print(video_response)
         des = video_response['items'][0]['snippet']['description']
         emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(des))
-        print(emails)
+        # print(emails)
         comment_count = video_response['items'][0]['statistics']['commentCount']
-        # print(video_response)
+        print(comment_count)
         video_response_2=youtube1.commentThreads().list(
         part='snippet,replies',
         videoId=vid_id,maxResults=100
         ).execute()
+        sentiment_analyzer = SentimentIntensityAnalyzer()
+        sentiments = []
+        latest_Video=[]
+        channel_title=video_response['items'][0]['snippet']['channelTitle']
+        title=video_response['items'][0]['snippet']['title']
+        # print(channel_title[0])
+        # print(channel_title)
         for i in video_response_2['items']:
                 comment=i['snippet']['topLevelComment']['snippet']['textDisplay']
+                # print(comment)
+                sentiment_scores = sentiment_analyzer.polarity_scores(comment)
+                sentiment = sentiment_scores['compound']
+                sentiments.append(sentiment)
                 emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(comment))
                 # print (emails)
                 replycount = i['snippet']['totalReplyCount']
@@ -61,7 +76,12 @@ for ele in data['items']:
                                 replies.append(reply)
         
                 # print comment with list of reply
-                print(replies, end = '\n\n')
+                # print(replies, end = '\n\n')
+        sentiment_score = sum(sentiments) / len(sentiments) if sentiments else 0
+        # print(sentiment_score)
+        # dic=["title":title]
+        
+        
         
 #             # empty reply list
 #         #     replies = []

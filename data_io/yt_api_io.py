@@ -47,9 +47,10 @@ class Youtube_API:
         joining_date = channel_data['snippet']['publishedAt']
         total_views = channel_data['statistics']['viewCount']
         channel_dict = {
-            "sub_cnt" : subscriber_count,
-            "jng_date" : joining_date,
-            "ttl_vws" : total_views
+            "Subscriber_Count" : subscriber_count,
+            "Join_Date" : joining_date,
+            "Views" : total_views,
+            "Channel_Name":channel_name,
         }
         return channel_dict
 
@@ -103,22 +104,28 @@ class Youtube_API:
         url=f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={channel_id}&maxResults=10&order=date&type=video&key={youtube_api_key}"
         json_url = requests.get(url)
         data = json.loads(json_url.text)
+        sentiment_analyzer = SentimentIntensityAnalyzer()
+        sentiments = []
         for ele in data['items']:
             vid_id=ele['id']['videoId']
             video_response= self.yt.videos().list(part='snippet,statistics', id=vid_id).execute()
             likes = video_response['items'][0]['statistics']['likeCount']
-            comment_count = video_response['items'][0]['statistics']['commentCount']
+            comment_count = video_response['items'][0]['statistics'].get('commentCount',0)
             des = video_response['items'][0]['snippet']['description']
             emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(des))
             #Extracting replies
             video_replies=self.yt.commentThreads().list(part='snippet,replies',videoId=vid_id,maxResults=100).execute()
             for rep in video_replies['items']:
+                # channel_title=video_response['items'][0]['snippet']['channelTitle']
+                title=rep['items'][0]['snippet']['title']
+                comment=rep['snippet']['topLevelComment']['snippet'].get('textDisplay')
+                sentiment_scores = sentiment_analyzer.polarity_scores(comment)
                 replycount = rep['snippet']['totalReplyCount']
                 replies = []
                 if replycount>0:
                    for reply in rep['replies']['comments']:
                         reply = reply['snippet']['textDisplay']
                         replies.append(reply)
-    
-        response={"Video ID":vid_id,"Likes":likes,"Comments Count":comment_count,"Email ID":emails,"Replies": replies}
+            sentiment_score = sum(sentiments) / len(sentiments) if sentiments else 0
+        response={"Title":title,"Likes":likes,"Comments Count":comment_count,"Email ID":emails,"Replies": replies,"sentiment_score":sentiment_score}
         return response
