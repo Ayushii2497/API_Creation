@@ -8,7 +8,7 @@ from flask import Response
 from flask import jsonify
 app = Flask(__name__)
 
-# Download the 'vader_lexicon' package from NLTK for sentiment analysis
+# # # Download the 'vader_lexicon' package from NLTK for sentiment analysis
 nltk.download('vader_lexicon')
 
 @app.route("/getChannelDetails", methods=['GET','POST'])
@@ -24,6 +24,7 @@ def getChannelDetails():
 
         # Perform data extraction in the background
         task = perform_youtube_analysis(channel_name)
+        print("task_id-",task)
 
         response = jsonify({"body":"Processing data"})
         response.status_code = 200
