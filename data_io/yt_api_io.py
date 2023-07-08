@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 import google.auth.transport.requests
 from nltk.sentiment import SentimentIntensityAnalyzer
 import json
-
+import itertools
+from operator import itemgetter
 # Read the configuration file
 config = configparser.ConfigParser()
 config.read(os.path.join(os.getcwd(), "data_io", "config.ini"))
@@ -115,7 +116,6 @@ class Youtube_API:
         json_url = requests.get(url)
         data = json.loads(json_url.text)
         sentiment_analyzer = SentimentIntensityAnalyzer()
-        
         for ele in data["items"]: 
             sentiments = []
             title = ele["snippet"]["title"]
@@ -124,7 +124,7 @@ class Youtube_API:
             video_response = (
                 self.yt.videos().list(part="snippet,statistics", id=vid_id).execute()
             )
-            likes = video_response["items"][0]["statistics"]["likeCount"]
+            # likes = video_response["items"][0]["statistics"]["likeCount"]
             comment_count = video_response["items"][0]["statistics"].get(
                 "commentCount", 0
             )
@@ -132,9 +132,12 @@ class Youtube_API:
             emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(des))
             if emails:
                 email_list.append(emails)
-            # Extracting replies
-            replies = []
+
             sentiment_score = 0
+            replygre=[]
+            likesmore=[]
+            normal=[]
+            print(comment_count)
             if comment_count:
                 video_replies = (
                     self.yt.commentThreads().list(part="snippet,replies", videoId=vid_id, maxResults=100).execute()
@@ -143,21 +146,33 @@ class Youtube_API:
                     comment = rep["snippet"]["topLevelComment"]["snippet"].get(
                         "textDisplay"
                     )
-                    sentiment_scores = sentiment_analyzer.polarity_scores(comment)
-                    sentiments.append(sentiment_scores["compound"])
-                    replycount = rep["snippet"]["totalReplyCount"]
                     
-                    if replycount > 0:
-                        for reply in rep["replies"]["comments"]:
-                            reply = reply["snippet"]["textDisplay"]
-                            replies.append(reply)
+                    replycount = rep["snippet"]["totalReplyCount"]
+                    likes=rep['snippet']['topLevelComment']['snippet']['likeCount']
+                    dic = {'likes': likes, 'comment': comment, 'replycount': replycount}
+                    if replycount > 0 and likes < replycount:
+                        replygre.append(dic)
+                    elif likes > replycount:
+                        likesmore.append(dic)
+                    elif likes == 0 and replycount == 0:
+                        normal.append(dic)
+                likes_lst = sorted(likesmore, key=itemgetter('likes'), reverse=True) 
+                all_data=list(itertools.chain(replygre,likes_lst,normal))
+                top_comments=all_data[:150]
+                for ele in top_comments:
+                    sentiment_scores = sentiment_analyzer.polarity_scores(ele['comment'])
+                    sentiments.append(sentiment_scores["compound"])
+                    
+                    
+                    # if replycount > 0:
+                    #     for reply in rep["replies"]["comments"]:
+                    #         reply = reply["snippet"]["textDisplay"]
+                    #         replies.append(reply)
                 sentiment_score = sum(sentiments) / len(sentiments) if sentiments else 0
 
             response = {
                 "Title": title,
-                "Likes": likes,
                 "Comments Count": comment_count,
-                "Replies": len(replies),
                 "sentiment_score": sentiment_score,
             }
             final_resp.append(response)

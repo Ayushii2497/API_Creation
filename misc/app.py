@@ -33,7 +33,10 @@ data = json.loads(json_url.text)
 # items=data.get("items")[0]
 # retrieve youtube video results 
 
-
+lst=[]
+replygre=[]
+likesmore=[]
+normal=[]
 for ele in data['items']:
         vid_id=ele['id']['videoId']
         video_request=youtube1.videos().list(
@@ -47,37 +50,68 @@ for ele in data['items']:
         emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(des))
         # print(emails)
         comment_count = video_response['items'][0]['statistics']['commentCount']
-        print(comment_count)
+        # print(comment_count)
         video_response_2=youtube1.commentThreads().list(
         part='snippet,replies',
-        videoId=vid_id,maxResults=100
+        videoId=vid_id
         ).execute()
-        sentiment_analyzer = SentimentIntensityAnalyzer()
-        sentiments = []
-        latest_Video=[]
-        channel_title=video_response['items'][0]['snippet']['channelTitle']
-        title=video_response['items'][0]['snippet']['title']
-        # print(channel_title[0])
-        # print(channel_title)
+        # sentiment_analyzer = SentimentIntensityAnalyzer()
+        # sentiments = []
+        # latest_Video=[]
+        # channel_title=video_response['items'][0]['snippet']['channelTitle']
+        # title=video_response['items'][0]['snippet']['title']
+        # # print(channel_title[0])
+
         for i in video_response_2['items']:
                 comment=i['snippet']['topLevelComment']['snippet']['textDisplay']
-                # print(comment)
-                sentiment_scores = sentiment_analyzer.polarity_scores(comment)
-                sentiment = sentiment_scores['compound']
-                sentiments.append(sentiment)
-                emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(comment))
-                # print (emails)
+                # print(i['snippet']['topLevelComment']['snippet'])
+        #         sentiment_scores = sentiment_analyzer.polarity_scores(comment)
+        #         sentiment = sentiment_scores['compound']
+        #         sentiments.append(sentiment)
+        #         emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", str(comment))
+        #         # print (emails)
+                # replycount = i['snippet']
+                # print(replycount)
                 replycount = i['snippet']['totalReplyCount']
-                replies = []
-                if replycount>0:
+                # likecount = i['snippet']['likeCount']
+                likes=i['snippet']['topLevelComment']['snippet']['likeCount']
+                # print(likes,comment,replycount)
+                dic={'likes':likes,"comment":comment,"replycount":replycount} 
+                if replycount>0 and likes<replycount:
+                        replygre.append(dic)
+                elif likes>replycount:
+                        likesmore.append(dic)
+                elif likes==0 and replycount==0:
+                        normal.append(dic)
+        from operator import itemgetter
+        newlist = sorted(likesmore, key=itemgetter('likes'), reverse=True) 
+
+# for i in newlist:
+#         if newlist['replycount']>newlist['likes']
+        import itertools
+        ab = itertools.chain(replygre,newlist,normal)
+# # final=replygre+likesmore+normal
+# # # print(final[:10])
+        out=list(ab)
+        res=out[:10]
+        print(res)
+# for i in res:
+#         print(i['comment'])
+# a={'abc':123}
+# print(a.get('ab'))
+
+
+                
+                # replies = []
+                # if replycount>0:
                    
-                        for reply in i['replies']['comments']:
-                                reply = reply['snippet']['textDisplay']
-                                replies.append(reply)
+                #         for reply in i['replies']['comments']:
+                #                 reply = reply['snippet']['textDisplay']
+                #                 replies.append(reply)
         
-                # print comment with list of reply
+                # # print comment with list of reply
                 # print(replies, end = '\n\n')
-        sentiment_score = sum(sentiments) / len(sentiments) if sentiments else 0
+        # sentiment_score = sum(sentiments) / len(sentiments) if sentiments else 0
         # print(sentiment_score)
         # dic=["title":title]
         
