@@ -25,3 +25,6 @@ RUN redis-server.exe redis.windows.conf
 [33248] 02 Jul 20:49:23.765 # Creating Server TCP listening socket *:6379: bind: No error
 This means redis running successfully
 ==============================
+
+add Vader_lexicon to this path 
+C:\Users\<USER>\AppData\Roaming\nltk_data\sentiment

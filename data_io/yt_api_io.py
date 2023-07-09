@@ -119,7 +119,7 @@ class Youtube_API:
         for ele in data["items"]: 
             sentiments = []
             title = ele["snippet"]["title"]
-            print(f"Processing - {title}")
+            # print(f"Processing - {title}")
             vid_id = ele["id"]["videoId"]
             video_response = (
                 self.yt.videos().list(part="snippet,statistics", id=vid_id).execute()
@@ -137,7 +137,7 @@ class Youtube_API:
             replygre=[]
             likesmore=[]
             normal=[]
-            print(comment_count)
+            # print(comment_count)
             if comment_count:
                 video_replies = (
                     self.yt.commentThreads().list(part="snippet,replies", videoId=vid_id, maxResults=100).execute()

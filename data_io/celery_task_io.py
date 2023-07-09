@@ -18,7 +18,7 @@ r_client = Redis_IO()
 @celery.task
 def perform_youtube_analysis(channel_name):
     # Perform YouTube analysis and other time-consuming tasks here
-
+    channel_name = ''.join(channel_name)
     # Retrieve and print the channel data for
     channel_data = yt_obj.channel_respose(channel_name)
     if channel_data:
