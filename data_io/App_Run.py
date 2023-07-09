@@ -1,16 +1,13 @@
 from data_io.yt_api_io import *
 from data_io.redis_io import *
-from data_io.celery_task_io import perform_youtube_analysis
-from data_io.celery_task_io import r_client
+from data_io.background_task_io import perform_youtube_analysis
+from data_io.background_task_io import r_client
 import nltk
 from flask import Flask, request, jsonify
 from multiprocessing import Process
 from data_io.url_check import *
 
 app = Flask(__name__)
-
-# Download the 'vader_lexicon' package from NLTK for sentiment analysis
-nltk.download('vader_lexicon')
 
 @app.route("/getChannelDetails", methods=['GET', 'POST'])
 def getChannelDetails():

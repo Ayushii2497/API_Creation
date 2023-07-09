@@ -1,0 +1,77 @@
+{
+    "Channel_Name": "sumitkarin",
+    "Join_Date": "2014-12-14T12:50:26Z",
+    "Parsed_email_ids": [],
+    "Status": "Processed",
+    "Subscriber_Count": "400",
+    "Timestamp": "1688905868",
+    "Views": "100761",
+    "latest_videos": [
+        {
+            "Comment_word_cloud": {},
+            "Comments Count": "0",
+            "Title": "19 February 2023",
+            "sentiment_score": 0
+        },
+        {
+            "Comment_word_cloud": {},
+            "Comments Count": "0",
+            "Title": "Kali Pujo Kolkata - Lake Club",
+            "sentiment_score": 0
+        },
+        {
+            "Comment_word_cloud": {
+                "Nice": 1
+            },
+            "Comments Count": "2",
+            "Title": "Durga Pujo Bhasan Procession - Mudiali Club - Babughat",
+            "sentiment_score": 0.21075
+        },
+        {
+            "Comment_word_cloud": {},
+            "Comments Count": "0",
+            "Title": "Durga Pujo Saptami Aarati - Kolkata - Tollygunge Park Sorbojonin",
+            "sentiment_score": 0
+        },
+        {
+            "Comment_word_cloud": {},
+            "Comments Count": "0",
+            "Title": "Road blockage at Haridevpur",
+            "sentiment_score": 0
+        },
+        {
+            "Comment_word_cloud": {
+                "Jay": 1,
+                "Nice": 1,
+                "maa": 1
+            },
+            "Comments Count": "3",
+            "Title": "#durgapuja #kumartuli",
+            "sentiment_score": 0.14049999999999999
+        },
+        {
+            "Comment_word_cloud": {},
+            "Comments Count": "0",
+            "Title": "Gondhoraj roll",
+            "sentiment_score": 0
+        },
+        {
+            "Comment_word_cloud": {},
+            "Comments Count": "0",
+            "Title": "#Bengal #village #view #viral",
+            "sentiment_score": 0
+        },
+        {
+            "Comment_word_cloud": {},
+            "Comments Count": "0",
+            "Title": "SVIST 2k12-2k16 Nostalzea",
+            "sentiment_score": 0
+        },
+        {
+            "Comment_word_cloud": {},
+            "Comments Count": "0",
+            "Title": "SVIST CSE 2016!",
+            "sentiment_score": 0
+        }
+    ]
+}
