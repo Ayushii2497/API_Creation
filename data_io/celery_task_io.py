@@ -1,21 +1,17 @@
 from celery import Celery
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from data_io.yt_api_io import *
 from data_io.redis_io import *
 import time
 
-# Create a Celery instance
-celery = Celery(
-    'youtube_api',
-    broker='redis://localhost:6379/0',
-    backend='redis://localhost:6379/0'
-)
 # Create an instance of th.e Youtube_API class
 yt_obj = Youtube_API()
 
 #instantite the redis server
 r_client = Redis_IO()
 
-@celery.task
+
 def perform_youtube_analysis(channel_name):
     # Perform YouTube analysis and other time-consuming tasks here
     channel_name = ''.join(channel_name)
@@ -50,6 +46,7 @@ def perform_youtube_analysis(channel_name):
         print("Data inserted into redis")
         return 
     
+    deep_search_channel_name(channel_name)
     channel_data = (
             {"Status" : "Channel not found",
              "Channel Name" : channel_name,
@@ -57,3 +54,24 @@ def perform_youtube_analysis(channel_name):
         )
     r_client.insert_info(channel_name, channel_data)
     print("Data inserted into redis")
+
+def deep_search_channel_name(channel_name):
+    try:
+        response = yt_obj.yt.search().list(
+            part='snippet',
+            q=channel_name,
+            type='channel',
+            maxResults=1
+        ).execute()
+
+        if 'items' in response:
+            channel = response['items'][0]
+            channel_id = channel['id']['channelId']
+            channel_title = channel['snippet']['title']
+
+            print('Channel Title:', channel_title)
+            print('Channel ID:', channel_id)
+
+    except HttpError as e:
+        print('An HTTP error occurred:')
+        print(e)

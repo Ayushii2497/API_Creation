@@ -42,10 +42,6 @@ class ChannelExtraction:
 
         return None
 
-
-
-
-    # url = "https://chat.openai.com/"
 def check_url(url):
     patterns = [
         r"(?:\/(c)\/([%\d\w_\-]+)(\/.*)?)",

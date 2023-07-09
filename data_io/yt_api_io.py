@@ -13,6 +13,8 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 import json
 import itertools
 from operator import itemgetter
+from textblob import TextBlob
+from wordcloud import WordCloud
 # Read the configuration file
 config = configparser.ConfigParser()
 config.read(os.path.join(os.getcwd(), "data_io", "config.ini"))
@@ -100,6 +102,25 @@ class Youtube_API:
         sentiment_score = sum(sentiments) / len(sentiments) if sentiments else 0
         return sentiment_score
 
+    def extract_word_cloud(self,top_comments,sentiments,all_words):
+        sentiment_analyzer = SentimentIntensityAnalyzer()
+        for ele in top_comments:
+            sentiment_scores = sentiment_analyzer.polarity_scores(ele['comment'])
+            sentiments.append(sentiment_scores["compound"])
+            try:
+            # Check if the comment is not empty and contains words
+                if ele['comment'] and any(word.isalpha() for word in ele['comment'].split()):
+                    blob = TextBlob(ele['comment'])
+                    wordcloud = WordCloud().generate(ele['comment'])
+                    words = wordcloud.words_
+                    all_words.extend(words)
+        
+            except ValueError:
+                # Handle the case when there are no words in the comment
+                continue
+        return all_words,sentiments
+    
+    
     def top_videos_info(self, channel_name):
         final_resp = []
         email_list = []
@@ -159,21 +180,15 @@ class Youtube_API:
                 likes_lst = sorted(likesmore, key=itemgetter('likes'), reverse=True) 
                 all_data=list(itertools.chain(replygre,likes_lst,normal))
                 top_comments=all_data[:150]
-                for ele in top_comments:
-                    sentiment_scores = sentiment_analyzer.polarity_scores(ele['comment'])
-                    sentiments.append(sentiment_scores["compound"])
-                    
-                    
-                    # if replycount > 0:
-                    #     for reply in rep["replies"]["comments"]:
-                    #         reply = reply["snippet"]["textDisplay"]
-                    #         replies.append(reply)
+                all_words=[]
+                all_words,sentiments=self.extract_word_cloud(self,top_comments,sentiments,all_words)
                 sentiment_score = sum(sentiments) / len(sentiments) if sentiments else 0
 
             response = {
                 "Title": title,
                 "Comments Count": comment_count,
                 "sentiment_score": sentiment_score,
+                "Comment_word_cloud":all_words,
             }
             final_resp.append(response)
 
